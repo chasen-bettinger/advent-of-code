@@ -1,11 +1,7 @@
-counter=0
-elf_dictionary={}
-elf_carrying_most_calories=None
-top_three=[None, None, None]
-sum_tracker=0
+import fileinput
 ROCK="Rock"
 PAPER="Paper"
-SCISSORS="SCISSORS"
+SCISSORS="Scissors"
 LOST="Lost"
 DRAW="Draw"
 WON="Won"
@@ -32,9 +28,9 @@ outcome_matrix={
 }
 
 score=0
-with open(f"input.txt") as input:
-    a_line=input.readline()
-    while a_line:
+with fileinput.input("input.txt") as input:
+    
+    for a_line in input:
         a_line=a_line.replace("\n", "")
 
         split_line=a_line.split(" ")
@@ -48,7 +44,6 @@ with open(f"input.txt") as input:
         score += points_of_game
         score += points_for_choice
 
-        a_line=input.readline()
 
 print(score)
 
