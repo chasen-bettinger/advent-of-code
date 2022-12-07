@@ -61,7 +61,7 @@ with fileinput.input("input.txt") as input:
         # create a queue of size {quantity} using append
         while len(buffer_queue) != quantity:
             item_to_add=sending_queue.pop()
-            buffer_queue.append(item_to_add)
+            buffer_queue.insert(0, item_to_add)
         
         # flush the queue into the to
         for item in buffer_queue:
