@@ -12,14 +12,24 @@ with fileinput.input("input.txt") as input:
         first_group=split_line[0].split("-")
         second_group=split_line[1].split("-")
 
+        def iterate_group(group):
+            starting_value=int(group[0])
+            ending_value=int(group[1])
+            group_list=[starting_value]
+            current_value=starting_value + 1
+            while current_value<=ending_value:
+                group_list.append(current_value)
+                current_value += 1
+            
+            return group_list
 
+        first_group_list=iterate_group(first_group)
+        second_group_list=iterate_group(second_group)
 
-        first_group_fully_contains= (int(first_group[0]) <= int(second_group[0])) and (int(first_group[1]) >= int(second_group[1]))
-        second_group_fully_contains= (int(first_group[0]) >= int(second_group[0])) and (int(first_group[1]) <= int(second_group[1]))
-
-        is_overlap = first_group_fully_contains is True or second_group_fully_contains is True
-
-        if is_overlap:
-            overlaps += 1
+        for item in second_group_list:
+            value=int(item)
+            if value in first_group_list:
+                overlaps += 1
+                break
 
 print(overlaps)
