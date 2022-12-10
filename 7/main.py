@@ -97,8 +97,7 @@ with fileinput.input("input.txt") as input:
         active_directory = split_line[2]
         continue
 
-    if read_mode is True:
-      if split_line[0] is "dir":
+    if split_line[0] is "dir":
 
         
 
