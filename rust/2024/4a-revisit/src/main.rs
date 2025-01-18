@@ -2,42 +2,42 @@ fn main() {
     println!("Hello, world!");
 }
 
-fn get_frequency_of_xmas(input: &str) -> u32 {
-    let word_search = input
+fn get_frequency_of_xmas(input: &str) -> i32 {
+    let search = input
         .lines()
         .filter(|line| !line.is_empty())
-        .map(|line| line.chars().collect::<Vec<_>>())
-        .collect::<Vec<_>>();
+        .map(|line| line.chars().collect::<Vec<char>>())
+        .collect::<Vec<Vec<char>>>();
 
-    let rows: i32 = word_search.len().try_into().unwrap_or(0);
-    let cols: i32 = word_search[0].len().try_into().unwrap_or(0);
-    let dxdy: [(i32, i32); 8] = [
-        (0, 1),   // right
-        (0, -1),  // left
-        (1, 0),   // down
-        (-1, 0),  // up
-        (1, 1),   // down-right
-        (1, -1),  // down-left
-        (-1, 1),  // up-right
-        (-1, -1), // up-left
-    ];
-
+    let rows: i32 = search.len() as i32;
+    let cols: i32 = search[0].len() as i32;
     let mut frequency = 0;
-    let word = "XMAS";
-
+    let WORD = "XMAS";
+    let dxdy = [
+        (0, 1),
+        (1, 0),
+        (0, -1),
+        (-1, 0),
+        (1, 1),
+        (-1, -1),
+        (1, -1),
+        (-1, 1),
+    ];
     for row in 0..rows {
         for col in 0..cols {
             for (dx, dy) in dxdy {
                 let mut found = true;
-                for i in 0..word.len() {
-                    let rrow = row + (dx * (i as i32));
-                    let ccol = col + (dy * (i as i32));
-                    if rrow < 0 || rrow >= rows || ccol < 0 || ccol >= cols {
+                for (i, c) in WORD.chars().enumerate() {
+                    let x = row + (dx * i as i32);
+                    let y = col + (dy * i as i32);
+                    let overflow_x = x < 0 || x >= rows;
+                    let overflow_y = y < 0 || y >= cols;
+                    if overflow_x || overflow_y {
                         found = false;
                         break;
                     }
-                    let word_value = word_search[rrow as usize][ccol as usize];
-                    if word_value != word.chars().nth(i).unwrap() {
+                    let curr_value = search[x as usize][y as usize];
+                    if curr_value != c {
                         found = false;
                         break;
                     }
@@ -48,7 +48,6 @@ fn get_frequency_of_xmas(input: &str) -> u32 {
             }
         }
     }
-
     frequency
 }
 
