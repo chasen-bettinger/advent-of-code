@@ -5,7 +5,7 @@ fn main() {
 }
 
 /*
-Source: https://github.com/ephemient/aoc2024/blob/main/rs/src/day4.rs 
+Source: https://github.com/ephemient/aoc2024/blob/main/rs/src/day4.rs
 
 This design looks at bytes of the target values,
 not actual characters. It uses specific directional values,
@@ -96,9 +96,104 @@ fn get_frequency_of_xmas_pattern_a(input: &str) -> i32 {
         .unwrap_or(0)
 }
 
-fn get_frequency_of_xmas(input: &str) -> i32 {
-    0
+/* https://github.com/AxlLind/AdventOfCode/blob/main/2024/src/bin/04.rs
+
+I like this pattern for a couple of reasons:
+1. it leverages match.. I think that match is effective at communicating
+and a way to handle variable cases.
+2. it's makes effective use of space, prefering inline evaluations like
+b"XMAS"[i as usize] instead of a function call. and a getter function that
+handles errors well.
+*/
+fn get_frequency_of_xmas_pattern_b(input: &str) -> i32 {
+    let lines = input
+        .lines()
+        .filter(|line| !line.is_empty())
+        .map(|line| line.as_bytes())
+        .collect::<Vec<_>>();
+
+    let rows: i32 = lines.len().try_into().unwrap();
+    let cols: i32 = lines[0].len().try_into().unwrap();
+
+    let mut frequency = 0;
+    for r in 0..rows {
+        for c in 0..cols {
+            match lines[r as usize][c as usize] {
+                b'X' => {
+                    frequency += chasen_find_xmas(&lines, r, c);
+                    // frequency += find_xmas(&lines, r, c);
+                }
+                _ => {}
+            }
+        }
+    }
+    frequency.try_into().unwrap_or(0)
 }
+
+fn get_frequency_of_xmas(input: &str) -> i32 {
+    get_frequency_of_xmas_pattern_b(&input)
+}
+
+// not sure how this works given that there is a
+// an overflow error when summing because of the usize
+// with negative values
+// this is the original find_xmas function
+fn find_xmas(m: &[&[u8]], r: usize, c: usize) -> usize {
+    [
+        (0, -1),
+        (-1, 0),
+        (0, 1),
+        (1, 0),
+        (1, 1),
+        (-1, 1),
+        (1, -1),
+        (-1, -1),
+    ]
+    .iter()
+    .filter(|(dr, dc)| {
+        (1..4).all(|i| {
+            let (rr, cc) = (r + (dr * i) as usize, c + (dc * i) as usize);
+            get(m, rr, cc) == b"XMAS"[i as usize]
+        })
+    })
+    .count()
+}
+
+// this is an alteration of the find_xmas function
+// but it uses i32 values. I'm not really sure how type
+// inference works, shifting all values in the [..] into
+// i32 / usize values based on what's inside the all
+// closure.
+fn chasen_find_xmas(m: &[&[u8]], r: i32, c: i32) -> usize {
+    [
+        (0, -1),
+        (-1, 0),
+        (0, 1),
+        (1, 0),
+        (1, 1),
+        (-1, 1),
+        (1, -1),
+        (-1, -1),
+    ]
+    .iter()
+    .filter(|(dr, dc)| {
+        (1..4).all(|i| {
+            let a_r = r + (dr * i);
+            let a_c = c + (dc * i);
+            if a_r < 0 || a_c < 0 || a_r >= m.len() as i32 || a_c >= m[a_r as usize].len() as i32 {
+                return false;
+            }
+            get(m, a_r as usize, a_c as usize) == b"XMAS"[i as usize]
+        })
+    })
+    .count()
+}
+
+// a safe getter for retrieving a value from a 2d matrix
+fn get(m: &[&[u8]], r: usize, c: usize) -> u8 {
+    *m.get(r).and_then(|row| row.get(c)).unwrap_or(&b'_')
+}
+/* most-similar implementation to mine: https://github.com/rust-dd/aoc-2024 */
 #[cfg(test)]
 mod tests {
     use std::fs;
