@@ -139,12 +139,43 @@ r -> starting row
 c -> starting column
 return_squares -> return all of the visited cells
 */
-fn chasen_walk(m: &[Vec<u8>],
+fn chasen_walk(
+    m: &[Vec<u8>],
     mut r: usize,
     mut c: usize,
     return_squares: bool,
 ) -> Option<Vec<(usize, usize)>> {
+    let mut seen = vec![vec![[false; 4]; m[0].len()]; m.len()];
+    let mut d = 0;
+    loop {
+        if seen[r][c][d] {
+            return None;
+        }
+        seen[r][c][d] = true;
+        let (dr, dc) = [(-1, 0), (0, 1), (1, 0), (0, -1)][d];
+        let (rr, cc) = (r + dr as usize, c + dc as usize);
+        let oob_r = !(0..m.len()).contains(&rr);
+        let oob_c = !(0..m[0].len()).contains(&cc);
+        if oob_r || oob_c {
+            // the visited squares are unimportant
+            if !return_squares {
+                return Some(Vec::new());
+            }
 
+            // any node visited at any direction
+            let visited = (0..m.len())
+                .cartesian_product(0..m[0].len())
+                .filter(|&(r, c)| seen[r][c].iter().any(|&b| b))
+                .collect();
+
+            return Some(visited);
+        }
+        if m[rr][cc] == b'#' {
+            d = (d + 1) % 4;
+        } else {
+            (r, c) = (rr, cc);
+        }
+    }
 }
 
 fn make_grid(coords: &Vec<(i32, i32)>) -> Vec<Vec<char>> {
@@ -170,16 +201,18 @@ mod tests {
 
     #[test]
     fn test_simple() {
-        let input = r#"....#.....
-.........#
-..........
-..#.......
-.......#..
-..........
-.#..^.....
-........#.
-#.........
-......#..."#;
+        //         let input = r#"....#.....
+        // .........#
+        // ..........
+        // ..#.......
+        // .......#..
+        // ..........
+        // .#..^.....
+        // ........#.
+        // #.........
+        // ......#..."#;
+
+        let input = include_str!("../input.txt");
 
         let mut m = input
             .lines()
@@ -189,12 +222,16 @@ mod tests {
             .cartesian_product(0..m[0].len())
             .find(|&(r, c)| m[r][c] == b'^')
             .unwrap();
+        // p1 is a list of coordinates that were traversed during the iteration
         let p1 = walk(&m, sr, sc, true).unwrap();
 
         let p2 = p1
             .iter()
             .filter(|&&(r, c)| {
                 m[r][c] = b'#';
+                // if walk returns none, it means that the cursor
+                // has traversed over a cell in a direction it has
+                // already passed before
                 let ok = walk(&m, sr, sc, false).is_none();
                 m[r][c] = b'.';
                 ok
