@@ -109,7 +109,7 @@ fn get_direction_ledger(dir: Direction) -> Vec<DirectionLedger> {
     }
 }
 
-fn ten(input: &str) -> i64 {
+fn ten(input: &str, distinct: bool) -> i64 {
     let lines = input
         .lines()
         .map(|line| {
@@ -153,16 +153,19 @@ fn ten(input: &str) -> i64 {
                             let step_value = lines[x as usize][y as usize];
 
                             if step_value == 9 && v == 8 {
-                                let mut trailhead_ledger_value = trailhead_ledger
-                                    .entry((r as usize, c as usize))
-                                    .or_insert(vec![]);
+                                if !distinct {
+                                    let trailhead_ledger_value = trailhead_ledger
+                                        .entry((r as usize, c as usize))
+                                        .or_insert(vec![]);
 
-                                if trailhead_ledger_value.contains(&(x as usize, y as usize)) {
-                                    continue;
+                                    if trailhead_ledger_value.contains(&(x as usize, y as usize)) {
+                                        continue;
+                                    }
+
+                                    trailhead_ledger_value.push((x as usize, y as usize));
                                 }
 
                                 score += 1;
-                                trailhead_ledger_value.push((x as usize, y as usize));
                                 continue;
                             }
 
@@ -199,14 +202,21 @@ mod tests {
 32019012
 01329801
 10456732"#;
-        let output = ten(input);
+        let output = ten(input, false);
         assert_eq!(output, 36);
     }
 
     #[test]
-    fn test_ten_input() {
+    fn test_ten_input_a() {
         let input = include_str!("../inputs/puzzle_10/input.txt");
-        let output = ten(input);
+        let output = ten(input, false);
         assert_eq!(output, 717);
+    }
+
+    #[test]
+    fn test_ten_input_b() {
+        let input = include_str!("../inputs/puzzle_10/input.txt");
+        let output = ten(input, true);
+        assert_eq!(output, 1686);
     }
 }
