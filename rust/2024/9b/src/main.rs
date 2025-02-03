@@ -45,6 +45,7 @@ fn y(input: &str) -> Output {
     });
 
     let mut sorted_keys: Vec<i64> = block_quantity.keys().cloned().collect();
+    // look into why the error happened when sorting with strings
     sorted_keys.sort_by(|a, b| b.cmp(a));
     for key in sorted_keys {
         let block_q = block_quantity.get(&key).unwrap();
