@@ -136,11 +136,4 @@ mod tests {
         let right_half_num = num % 10_i64.pow(nlen / 2);
         assert_eq!(right_half_num, 34);
     }
-
-    // #[test]
-    // fn test_ten_input_b() {
-    //     let input = include_str!("../inputs/puzzle_10/input.txt");
-    //     let output = ten(input, true);
-    //     assert_eq!(output, 1686);
-    // }
 }
